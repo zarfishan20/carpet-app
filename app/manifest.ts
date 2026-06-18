@@ -5,10 +5,12 @@ export default function manifest(): MetadataRoute.Manifest {
     name: 'Carpet Flow CRM Engine',
     short_name: 'CarpetFlow',
     description: 'Site Measurement & Dispatch Workflow Engine Matrix',
-    start_url: '/dashboard',
+    // 1. Change this from '/dashboard' to '.' 
+    // This tells the phone: "Launch exactly whichever sub-page the user added to their home screen!"
+    start_url: '.', 
     display: 'standalone',
-    background_color: '#020617', // Matches bg-slate-950
-    theme_color: '#0ea5e9',      // Matches sky-500 accent
+    background_color: '#020617', 
+    theme_color: '#0ea5e9',      
     orientation: 'portrait',
     icons: [
       {
