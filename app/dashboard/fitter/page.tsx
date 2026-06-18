@@ -3,6 +3,8 @@
 import CustomerSignature from "@/components/CustomerSignature";
 import { createClient } from "@/utils/supabase/client";
 
+
+
 export default function FitterDashboard() {
   const supabase = createClient();
   const sampleJobId = "00000000-0000-0000-0000-000000000000"; 

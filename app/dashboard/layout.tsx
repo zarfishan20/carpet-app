@@ -36,7 +36,11 @@ export default function DashboardUniversalLayout({
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col antialiased selection:bg-sky-500/30">
-      
+      <head>
+        <link rel="canonical" href={`https://your-project-name.vercel.app${pathname}`} />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
+      </head>
       {/* Upper Brand Control Header */}
       <header className="sticky top-0 z-40 w-full bg-slate-900/80 backdrop-blur-md border-b border-slate-800/60 px-4 md:px-8 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
