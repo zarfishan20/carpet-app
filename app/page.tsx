@@ -1,65 +1,174 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/utils/supabase/client';
+import { Layers, KeyRound, Mail, AlertCircle, Loader2 } from 'lucide-react';
+
+export default function RootMainPage() {
+  const supabase = createClient();
+  const router = useRouter();
+
+  // Authentication Fields
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  
+  // Interface Processing States
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [mounted, setMounted] = useState(false);
+
+  // Clear server/client matching checks safely for Next.js PWA environments
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <p className="text-slate-500 font-mono text-xs tracking-widest animate-pulse">AUTHENTICATING TERMINAL...</p>
+      </div>
+    );
+  }
+
+  const handleLoginSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrorMessage('');
+
+    try {
+      // 🔐 Execute Supabase Auth challenge
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+
+      if (error) throw error;
+
+      if (data?.user) {
+        // Fetch profile details to check what role this specific database user has
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .single();
+
+        if (profileError || !profile) {
+          await supabase.auth.signOut();
+          throw new Error('Access denied: User profile records not found.');
+        }
+
+        // 🔀 Strict dynamic routing based on validated database role parameters
+        if (profile.role === 'admin') {
+          router.push('/dashboard/admin');
+        } else {
+          // Fitters and surveyors bypass the main landing screen completely anyway. 
+          // If they land here accidentally, logging in will reject non-admins from the HQ base link.
+          await supabase.auth.signOut();
+          throw new Error('Access denied: Secure Executive Control Portal only.');
+        }
+      }
+    } catch (err) {
+      if (err instanceof Error) {
+        setErrorMessage(err.message);
+      } else {
+        setErrorMessage('Authentication sequence failed.');
+      }
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 antialiased selection:bg-sky-500/30">
+      
+      {/* Background ambient glows */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-sky-500/10 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-indigo-500/5 blur-[140px] rounded-full pointer-events-none" />
+
+      <div className="w-full max-w-md bg-slate-900/40 backdrop-blur-xl border border-slate-800/80 p-8 rounded-3xl shadow-2xl space-y-6 relative z-10">
+        
+        {/* Core Brand Banner */}
+        <div className="flex flex-col items-center text-center space-y-2">
+          <div className="bg-linear-to-tr from-sky-500 to-indigo-500 p-3 rounded-2xl shadow-xl shadow-sky-500/10">
+            <Layers className="w-6 h-6 text-slate-950 stroke-[2.5]" />
+          </div>
+          <div className="pt-2">
+            <h1 className="text-xl font-black uppercase tracking-tight bg-clip-text text-transparent bg-linear-to-r from-white to-slate-400">
+              Carpet Flow
+            </h1>
+            <p className="text-[10px] font-mono text-sky-400/80 tracking-widest uppercase mt-0.5">Admin Security Portal</p>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+        {/* Error Notification Block */}
+        {errorMessage && (
+          <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-xl p-3.5 flex items-start gap-2.5 animate-in fade-in duration-200">
+            <AlertCircle size={16} className="shrink-0 mt-0.5" />
+            <p className="font-medium leading-relaxed">{errorMessage}</p>
+          </div>
+        )}
+
+        {/* Credentials Form Layout */}
+        <form onSubmit={handleLoginSubmit} className="space-y-4">
+          
+          <div className="space-y-1.5">
+            <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400">Admin Email</label>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                <Mail size={16} />
+              </span>
+              <input 
+                type="email" 
+                required 
+                disabled={loading}
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="admin@carpetflow.pro" 
+                className="w-full bg-slate-950/80 border border-slate-800/80 hover:border-slate-700 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-sky-500/40 transition-all disabled:opacity-50"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400">Security Key</label>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                <KeyRound size={16} />
+              </span>
+              <input 
+                type="password" 
+                required 
+                disabled={loading}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="••••••••" 
+                className="w-full bg-slate-950/80 border border-slate-800/80 hover:border-slate-700 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-sky-500/40 transition-all disabled:opacity-50"
+              />
+            </div>
+          </div>
+
+          <button 
+            type="submit" 
+            disabled={loading}
+            className="w-full bg-linear-to-r from-sky-500 to-indigo-500 hover:from-sky-600 hover:to-indigo-600 disabled:from-slate-800 disabled:to-slate-800 text-slate-950 disabled:text-slate-500 font-black text-xs uppercase tracking-wider py-4 rounded-xl shadow-lg shadow-sky-500/5 active:scale-[0.98] transition-all mt-6 flex items-center justify-center gap-2"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+            {loading ? (
+              <>
+                <Loader2 size={16} className="animate-spin" />
+                Authorizing Base Link...
+              </>
+            ) : (
+              'Enter Admin Workspace'
+            )}
+          </button>
+        </form>
+
+        <p className="text-center text-[10px] font-mono text-slate-500 tracking-wide uppercase pt-2">
+          Secure Administrative Vault Access Only
+        </p>
+
+      </div>
     </div>
   );
 }
