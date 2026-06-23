@@ -1,6 +1,6 @@
 'use client';
 
-import CustomerSignature from "@/components/CustomerSignature";
+import CustomerSignature from "@/components/jobsheet/CustomerSignature";
 import { createClient } from "@/utils/supabase/client";
 
 
