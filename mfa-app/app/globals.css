@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@theme {
+  /* Tailwind v4 automatically creates classes like bg-palette-linen, text-palette-ink, etc. from these variables */
+  --color-palette-linen: #F4ECE0;
+  --color-palette-linen-deep: #E8DCC8;
+  --color-palette-card: #FFFBF5;
+  --color-palette-walnut: #2B231D;
+  --color-palette-ink: #2E2520;
+  --color-palette-ink-muted: #7A6A5C;
+  --color-palette-rule: #DED0BA;
+  --color-palette-terracotta: #B5512C;
+  --color-palette-terracotta-light: #E59569;
+  --color-palette-moss: #6B7F5B;
+  --color-palette-amber: #BD8A2E;
+  --color-palette-brick: #A13D2B;
+  --color-palette-slate: #6E7C82;
+  --color-palette-cream: #FBF6EC;
+
+  
+  /*       Fonts.       */
+  --font-sans: var(--font-geist-sans), sans-serif;
+  --font-serif: var(--font-geist-serif), serif;
+
+  /* Material Background Textures */
+  --bg-carpet: repeating-linear-gradient(45deg, rgba(255,255,255,0.22) 0px, rgba(255,255,255,0.22) 2px, transparent 2px, transparent 5px);
+  --bg-hardwood: repeating-linear-gradient(180deg, rgba(43,26,12,0.28) 0px, rgba(43,26,12,0.28) 1px, transparent 1px, transparent 7px);
+  --bg-lvp: repeating-linear-gradient(90deg, rgba(43,26,12,0.28) 0px, rgba(43,26,12,0.28) 1px, transparent 1px, transparent 11px);
+  --bg-tile: repeating-linear-gradient(0deg, rgba(43,26,12,0.3) 0px, rgba(43,26,12,0.3) 1px, transparent 1px, transparent 13px), repeating-linear-gradient(90deg, rgba(43,26,12,0.3) 0px, rgba(43,26,12,0.3) 1px, transparent 1px, transparent 13px);
+  --bg-laminate: repeating-radial-gradient(circle at 4px 4px, rgba(43,26,12,0.25) 0px, rgba(43,26,12,0.25) 1px, transparent 1px, transparent 6px);
+}
+
+/* UI Helper Utility Classes */
+.badge-amber { 
+  background-color: rgba(189, 138, 46, 0.14); 
+  color: var(--color-palette-amber); 
+}
+
+.badge-slate { 
+  background-color: rgba(110, 124, 130, 0.14); 
+  color: var(--color-palette-slate); 
+}
+
+.badge-brick { 
+  background-color: rgba(161, 61, 43, 0.14); 
+  color: var(--color-palette-brick); 
+}
+
+.bg-texture-tile { 
+  background-color: #C7C0AF; 
+  background-image: var(--bg-tile); 
+}
+
+.bg-texture-hardwood { 
+  background-color: #A9763F; 
+  background-image: var(--bg-hardwood); 
+}
+
+.bg-texture-lvp { 
+  background-color: #BFA27A; 
+  background-image: var(--bg-lvp); 
+}
